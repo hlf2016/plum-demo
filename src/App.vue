@@ -54,16 +54,17 @@ const step = (b: Branch) => {
   if (Math.random() < 0.5) {
     pendingTasks.push(() => step({
       start: endPoint,
-      length: b.length,
-      theta: b.theta - 0.2,
+      // (Math.random() * 10 - 5) 生成 -5 到 5 的随机数
+      length: b.length + (Math.random() * 10 - 5),
+      theta: b.theta - 0.3 * Math.random(),
     }))
   }
   // 50% 的概率 画右支
   if (Math.random() < 0.5) {
     pendingTasks.push(() => step({
       start: endPoint,
-      length: b.length,
-      theta: b.theta + 0.2,
+      length: b.length + (Math.random() * 10 - 5),
+      theta: b.theta + 0.3 * Math.random(),
     }))
   }
 }
@@ -84,9 +85,15 @@ const frame = () => {
 // })
 
 // 递归调用 requestAnimationFrame 刷新
+// 显示还是太快 设置计数器 控制刷新显示速度
+let frameCount = 0
 const refreshFrame = () => {
   requestAnimationFrame(() => {
-    frame()
+    frameCount++
+    // 设置 每3帧 画一次
+    if (frameCount % 3 === 0)
+      frame()
+
     refreshFrame()
   })
 }
@@ -95,7 +102,7 @@ onMounted(() => {
   init()
   const initBranch = {
     start: { x: WIDTH / 2, y: HEIGHT },
-    length: 40,
+    length: 30,
     theta: -Math.PI / 2,
   }
   step(initBranch)
