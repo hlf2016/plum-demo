@@ -42,27 +42,42 @@ const drawBranch = (b: Branch) => {
   lineTo(b.start, getEndPoint(b))
 }
 
+// 为了实现延时效果 长出一支后 另一支才开始长
+// 递归转堆栈 放入的是 一个个的 闭包函数
+const pendingTasks: Function[] = []
+
 // 递归 每一步的操作
 const step = (b: Branch) => {
   drawBranch(b)
   const endPoint = getEndPoint(b)
   // 50% 的概率 画左支
   if (Math.random() < 0.5) {
-    step({
+    pendingTasks.push(() => step({
       start: endPoint,
       length: b.length,
       theta: b.theta - 0.2,
-    })
+    }))
   }
   // 50% 的概率 画右支
   if (Math.random() < 0.5) {
-    step({
+    pendingTasks.push(() => step({
       start: endPoint,
       length: b.length,
       theta: b.theta + 0.2,
-    })
+    }))
   }
 }
+
+// 遍历执行 pendingTasks 中的任务
+const frame = () => {
+  pendingTasks.forEach(f => f())
+}
+
+// window.requestAnimationFrame() 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行
+// 跟 setInterval 类似 只是会自适应刷新
+requestAnimationFrame(() => {
+  frame()
+})
 
 onMounted(() => {
   init()
