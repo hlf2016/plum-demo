@@ -47,25 +47,26 @@ const drawBranch = (b: Branch) => {
 const pendingTasks: Function[] = []
 
 // 递归 每一步的操作
-const step = (b: Branch) => {
+// 为了 防止 长的过于单调 加入 树深度 depth 控制  保证其至少可以达到某个深度 枝繁叶茂
+const step = (b: Branch, depth = 0) => {
   drawBranch(b)
   const endPoint = getEndPoint(b)
   // 50% 的概率 画左支
-  if (Math.random() < 0.5) {
+  if (depth < 3 || Math.random() < 0.5) {
     pendingTasks.push(() => step({
       start: endPoint,
       // (Math.random() * 10 - 5) 生成 -5 到 5 的随机数
       length: b.length + (Math.random() * 10 - 5),
       theta: b.theta - 0.3 * Math.random(),
-    }))
+    }, depth + 1))
   }
   // 50% 的概率 画右支
-  if (Math.random() < 0.5) {
+  if (depth < 3 || Math.random() < 0.5) {
     pendingTasks.push(() => step({
       start: endPoint,
       length: b.length + (Math.random() * 10 - 5),
       theta: b.theta + 0.3 * Math.random(),
-    }))
+    }, depth + 1))
   }
 }
 
@@ -91,7 +92,7 @@ const refreshFrame = () => {
   requestAnimationFrame(() => {
     frameCount++
     // 设置 每3帧 画一次
-    if (frameCount % 3 === 0)
+    if (frameCount % 5 === 0)
       frame()
 
     refreshFrame()
