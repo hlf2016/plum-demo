@@ -70,14 +70,26 @@ const step = (b: Branch) => {
 
 // 遍历执行 pendingTasks 中的任务
 const frame = () => {
-  pendingTasks.forEach(f => f())
+  // 避免函数执行过程中 影响 step 递归中 pendingTasks 的使用 处理前先把数据浅拷贝 进行处理 紧接着把 pendingTasks 清空
+  const tasks = [...pendingTasks]
+  pendingTasks.length = 0
+  tasks.forEach(fn => fn())
 }
 
 // window.requestAnimationFrame() 告诉浏览器——你希望执行一个动画，并且要求浏览器在下次重绘之前调用指定的回调函数更新动画。该方法需要传入一个回调函数作为参数，该回调函数会在浏览器下一次重绘之前执行
 // 跟 setInterval 类似 只是会自适应刷新
-requestAnimationFrame(() => {
-  frame()
-})
+
+// requestAnimationFrame(() => {
+//   frame()
+// })
+
+// 递归调用 requestAnimationFrame 刷新
+const refreshFrame = () => {
+  requestAnimationFrame(() => {
+    frame()
+    refreshFrame()
+  })
+}
 
 onMounted(() => {
   init()
@@ -87,6 +99,8 @@ onMounted(() => {
     theta: -Math.PI / 2,
   }
   step(initBranch)
+  // 刷新页面显示
+  refreshFrame()
 })
 </script>
 
