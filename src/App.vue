@@ -113,7 +113,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div flex="~" h-full justify-center items-center>
     <canvas ref="el" width="400" height="400" border />
   </div>
 </template>
